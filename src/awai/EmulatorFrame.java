@@ -4,7 +4,11 @@ import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.File;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -30,6 +34,8 @@ public class EmulatorFrame
 	
 	Point cursor;
 	boolean isTileInfoLeft;
+	
+	int d = 0; // debugging counter
 
 	public EmulatorFrame(String filepath) throws IOException, AWTException, InterruptedException
 	{
@@ -46,7 +52,7 @@ public class EmulatorFrame
 		resetCursor();
 	}
 	
-	public BufferedImage[][] inspect(int y, int x) throws InterruptedException
+	public BufferedImage[][] inspect(int y, int x) throws InterruptedException, IOException
 	{
 		BufferedImage[][] ret = new BufferedImage[1][]; //make this 2 later
 		moveCursor(y, x);
@@ -268,8 +274,9 @@ public class EmulatorFrame
 		return img;
 	}
 	
-	public BufferedImage[] printTileInfo()
+	public BufferedImage[] printTileInfo() throws IOException, InterruptedException
 	{
+		Thread.sleep(100); // Needed in case tile info is switching sides
 		BufferedImage[] subimgs = new BufferedImage[3];
 		int x, y, w, h;
 		y = screenshotScreen.y + (screenshotScreen.height * 6) / AWAI.tileHeight;
@@ -279,12 +286,19 @@ public class EmulatorFrame
 		if (!isTileInfoLeft) x += screenshotScreen.width* 13 / AWAI.tileWidth;
 		Rectangle rec = new Rectangle(x, y, w, h);
 		BufferedImage img = robot.createScreenCapture(rec);
-		subimgs[0] = img.getSubimage(img.getWidth()/16, img.getHeight()/8, img.getWidth()*3/4, img.getHeight()*3/16);
+		ImageIO.write(img, "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraininspectwhole" + d + ".jpg"));
+		subimgs[0] = img.getSubimage(0, img.getHeight()/8, img.getWidth(), img.getHeight()*3/16);
+		//ImageIO.write(subimgs[0], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraininspectraw" + d + ".jpg"));
 		subimgs[0] = wash(subimgs[0], 150);
-		subimgs[1] = img.getSubimage(img.getWidth()/2, img.getHeight()*9/16, img.getWidth()*3/8, img.getHeight()/8);
+		subimgs[1] = img.getSubimage(img.getWidth()/2, img.getHeight()*9/16, img.getWidth()/2, img.getHeight()/8);
+		ImageIO.write(subimgs[1], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraindefinspectraw" + d + ".jpg"));
 		subimgs[1] = wash(subimgs[1], 170);
-		subimgs[2] = img.getSubimage(img.getWidth()*3/8, img.getHeight()*23/32, img.getWidth()*4/8, img.getHeight()*2/16);
+		ImageIO.write(subimgs[1], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraindefinspectwash" + d + ".jpg"));
+		subimgs[2] = img.getSubimage(0, img.getHeight()*23/32, img.getWidth(), img.getHeight()*2/16);
+		ImageIO.write(subimgs[2], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraincapinspectraw" + d + ".jpg"));
 		subimgs[2] = wash(subimgs[2], 150);
+		ImageIO.write(subimgs[2], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraincapinspectwash" + d + ".jpg"));
+		d++;
 		return subimgs;
 	}
 	

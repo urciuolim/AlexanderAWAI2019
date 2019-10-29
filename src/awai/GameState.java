@@ -12,11 +12,6 @@ public class GameState
 	Terrain[][] gameBoard;
 	EmulatorFrame emulator;
 	
-	public static enum Terrain
-	{
-		SEA, PLAIN, WOOD, ROAD, BRDG, BASE, HQ, MT, CITY;
-	}
-	
 	public GameState(BufferedImage[][] terrainGrid, EmulatorFrame e) throws IOException, InterruptedException, TesseractException
 	{
 		emulator = e;
@@ -38,7 +33,7 @@ public class GameState
 		{
 			for(Terrain tile : column)
 			{
-				System.out.print(tile.toString() + "\t");
+				System.out.print(tile.ter.toString() + "\t");
 			}
 			System.out.println();
 		}

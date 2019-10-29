@@ -8,12 +8,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javax.imageio.ImageIO;
-
 import net.sourceforge.tess4j.*;
-
-import awai.GameState.Terrain;
 
 public class ImageClassifier 
 {
@@ -34,34 +30,39 @@ public class ImageClassifier
 	{
 		Histogram unk = new Histogram(img);
 		String in;
-		String terrain;
+		String t;
 		BufferedImage[][] inspects;
 		for (HistTerrainPair hTP : terrainHists)
 		{
 			if (unk.isSimilar(hTP.h, TOL))
 			{
-				System.out.println("Found " + hTP.t.toString());
+				System.out.println("Found " + hTP.t.ter.toString());
 				return hTP.t;
 			}
 		}
 		//System.out.println("Unknown tile found");
 		inspects = emulator.inspect(y, x);
-		ImageIO.write(inspects[0][0], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraininspect.jpg"));
-		terrain = tess.doOCR(inspects[0][0]).toUpperCase().trim();
-		if (terrain.equals("BA $¢")) terrain = "BASE";
-		else if (terrain.equals("HO") || terrain.equals("HA")) terrain = "HQ";
-		System.out.println("Discovered |" + terrain + "|");
-		HistTerrainPair temp = new HistTerrainPair(unk, Terrain.valueOf(terrain));
+		t = correctOCR(tess.doOCR(inspects[0][0]).toUpperCase().trim());
+		System.out.println("Discovered |" + t + "|");
+		HistTerrainPair temp = new HistTerrainPair(unk, new Terrain(Terrain.Type.valueOf(t), 0));
 		terrainHists.add(temp);
-		//updateDatabase(temp);
+		updateDatabase(temp);
 		return temp.t;
+	}
+	
+	private String correctOCR(String text)
+	{
+		String ret = text;
+		if (ret.equals("BA $¢")) ret = "BASE";
+		else if (ret.equals("HO") || ret.equals("HA")) ret = "HQ";
+		return ret;
 	}
 	
 	public void updateDatabase(HistTerrainPair pair) throws IOException
 	{
 		String dbPath = AWAI.baseFP + "\\Database\\terrain.db";
 		BufferedWriter writer = new BufferedWriter(new FileWriter(dbPath, true));
-		writer.append(pair.h.toString() + ":" + pair.t.name() + "\n");
+		writer.append(pair.h.toString() + ":" + pair.t.ter.toString() + "\n");
 		writer.close();
 	}
 	
@@ -78,7 +79,7 @@ public class ImageClassifier
 				i = line.indexOf(':');
 				terrainHists.add(new HistTerrainPair(
 						new Histogram(line.substring(0,  i)),
-						Terrain.valueOf(line.substring(i+1))));
+						new Terrain(Terrain.Type.valueOf(line.substring(i+1)), 0)));
 				// read next line
 				line = reader.readLine();
 			}
