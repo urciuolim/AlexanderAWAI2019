@@ -29,9 +29,8 @@ public class ImageClassifier
 	public Terrain whatIsTerrain(BufferedImage img, int y, int x) throws IOException, InterruptedException, TesseractException
 	{
 		Histogram unk = new Histogram(img);
-		String in;
 		String t;
-		BufferedImage[][] inspects;
+		BufferedImage[] inspects;
 		for (HistTerrainPair hTP : terrainHists)
 		{
 			if (unk.isSimilar(hTP.h, TOL))
@@ -42,17 +41,17 @@ public class ImageClassifier
 		}
 		//System.out.println("Unknown tile found");
 		inspects = emulator.inspect(y, x);
-		t = correctOCR(tess.doOCR(inspects[0][0]).toUpperCase().trim());
+		t = correctTerrainOCR(tess.doOCR(inspects[0]));
 		System.out.println("Discovered |" + t + "|");
-		HistTerrainPair temp = new HistTerrainPair(unk, new Terrain(Terrain.Type.valueOf(t), 0));
+		HistTerrainPair temp = new HistTerrainPair(unk, new Terrain(Terrain.Type.valueOf(t)));
 		terrainHists.add(temp);
 		updateDatabase(temp);
 		return temp.t;
 	}
 	
-	private String correctOCR(String text)
+	private String correctTerrainOCR(String text)
 	{
-		String ret = text;
+		String ret = text.toUpperCase().trim();
 		if (ret.equals("BA $¢")) ret = "BASE";
 		else if (ret.equals("HO") || ret.equals("HA")) ret = "HQ";
 		return ret;
@@ -70,16 +69,20 @@ public class ImageClassifier
 	{
 		BufferedReader reader;
 		String dbPath = AWAI.baseFP + "\\Database\\terrain.db";
-		String line;
+		String line, his, ter;
 		int i = 0;
 		try {
 			reader = new BufferedReader(new FileReader(dbPath));
 			line = reader.readLine();
 			while (line != null) {
 				i = line.indexOf(':');
+				his = line.substring(0, i);
+				line = line.substring(i+1);
+				i = line.indexOf(':');
+				ter = line.substring(0, i);
 				terrainHists.add(new HistTerrainPair(
-						new Histogram(line.substring(0,  i)),
-						new Terrain(Terrain.Type.valueOf(line.substring(i+1)), 0)));
+						new Histogram(his),
+						new Terrain(Terrain.Type.valueOf(ter))));
 				// read next line
 				line = reader.readLine();
 			}

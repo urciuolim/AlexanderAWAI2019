@@ -52,17 +52,10 @@ public class EmulatorFrame
 		resetCursor();
 	}
 	
-	public BufferedImage[][] inspect(int y, int x) throws InterruptedException, IOException
+	public BufferedImage[] inspect(int y, int x) throws InterruptedException, IOException
 	{
-		BufferedImage[][] ret = new BufferedImage[1][]; //make this 2 later
 		moveCursor(y, x);
-		ret[0] = printTileInfo();
-		/** Add intel screen later
- 		r(50);
-		boolean left = x > 6;
-		ret[1] = printIntel(left);
-		**/
-		return ret;
+		return printTileInfo();
 	}
 	
 	public void moveCursor(int y, int x) throws InterruptedException
@@ -277,7 +270,7 @@ public class EmulatorFrame
 	public BufferedImage[] printTileInfo() throws IOException, InterruptedException
 	{
 		Thread.sleep(100); // Needed in case tile info is switching sides
-		BufferedImage[] subimgs = new BufferedImage[3];
+		BufferedImage[] subimgs = new BufferedImage[2];
 		int x, y, w, h;
 		y = screenshotScreen.y + (screenshotScreen.height * 6) / AWAI.tileHeight;
 		w = (screenshotScreen.width * 2) / AWAI.tileWidth;
@@ -290,18 +283,15 @@ public class EmulatorFrame
 		subimgs[0] = img.getSubimage(0, img.getHeight()/8, img.getWidth(), img.getHeight()*3/16);
 		//ImageIO.write(subimgs[0], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraininspectraw" + d + ".jpg"));
 		subimgs[0] = wash(subimgs[0], 150);
-		subimgs[1] = img.getSubimage(img.getWidth()/2, img.getHeight()*9/16, img.getWidth()/2, img.getHeight()/8);
-		ImageIO.write(subimgs[1], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraindefinspectraw" + d + ".jpg"));
-		subimgs[1] = wash(subimgs[1], 170);
-		ImageIO.write(subimgs[1], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraindefinspectwash" + d + ".jpg"));
-		subimgs[2] = img.getSubimage(0, img.getHeight()*23/32, img.getWidth(), img.getHeight()*2/16);
-		ImageIO.write(subimgs[2], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraincapinspectraw" + d + ".jpg"));
-		subimgs[2] = wash(subimgs[2], 150);
-		ImageIO.write(subimgs[2], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraincapinspectwash" + d + ".jpg"));
+		subimgs[1] = img.getSubimage(0, img.getHeight()*23/32, img.getWidth(), img.getHeight()*2/16);
+		ImageIO.write(subimgs[1], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraincapinspectraw" + d + ".jpg"));
+		subimgs[1] = wash(subimgs[1], 150);
+		ImageIO.write(subimgs[1], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraincapinspectwash" + d + ".jpg"));
 		d++;
 		return subimgs;
 	}
 	
+	/*
 	public BufferedImage[] printIntel(boolean left)
 	{
 		BufferedImage[] subimgs = new BufferedImage[6];
@@ -320,7 +310,7 @@ public class EmulatorFrame
 		subimgs[4] = img.getSubimage(0, img.getHeight()*5/6, img.getWidth()/2, img.getHeight()/6);
 		subimgs[5] = img.getSubimage(img.getWidth()/2, img.getHeight()*5/6, img.getWidth()/2, img.getHeight()/6);
 		return subimgs;
-	}
+	}*/
 	
 	private BufferedImage wash(BufferedImage dirty, int tolerance)
 	{

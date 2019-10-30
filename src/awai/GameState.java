@@ -33,7 +33,7 @@ public class GameState
 		{
 			for(Terrain tile : column)
 			{
-				System.out.print(tile.ter.toString() + "\t");
+				System.out.print(tile.toString() + "\t");
 			}
 			System.out.println();
 		}
