@@ -3,8 +3,6 @@ package awai;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import net.sourceforge.tess4j.TesseractException;
-
 public class GameState 
 {
 	
@@ -12,7 +10,7 @@ public class GameState
 	Terrain[][] gameBoard;
 	EmulatorFrame emulator;
 	
-	public GameState(BufferedImage[][] terrainGrid, EmulatorFrame e) throws IOException, InterruptedException, TesseractException
+	public GameState(BufferedImage[][] terrainGrid, EmulatorFrame e) throws IOException, InterruptedException
 	{
 		emulator = e;
 		IC = new ImageClassifier(emulator);

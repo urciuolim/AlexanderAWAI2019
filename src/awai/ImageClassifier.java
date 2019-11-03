@@ -8,25 +8,48 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
-import net.sourceforge.tess4j.*;
 
 public class ImageClassifier 
 {
 	final int TOL = 2000;
 	ArrayList<HistTerrainPair> terrainHists;
-	Tesseract tess;
 	EmulatorFrame emulator;
 	
 	public ImageClassifier(EmulatorFrame e)
 	{
 		terrainHists = new ArrayList<HistTerrainPair>();
-		tess = new Tesseract();
 		emulator = e;
-		loadDatabase();
+		loadTerrainDatabase();
 	}
 	
-	public Terrain whatIsTerrain(BufferedImage img, int y, int x) throws IOException, InterruptedException, TesseractException
+	public String imageWordMatch(BufferedImage img, int y, int x) throws IOException
+	{
+		BufferedImage recordImg;
+		File dbFolder = new File(AWAI.baseFP + "\\Database\\words");
+		if (dbFolder.listFiles() != null)
+		{
+		    for ( File fileEntry : dbFolder.listFiles()) 
+		    {
+				recordImg = ImageUtility.readImage(fileEntry);
+				if(ImageUtility.compareImages(recordImg, img, 100))
+				{
+					return fileEntry.getName();
+				}
+		    }
+		}
+		updateWordDatabase(img, "REPLACEME" + y + "_" + x);
+		return "UNKNOWN";
+	}
+	
+	public void updateWordDatabase(BufferedImage img, String word) throws IOException
+	{
+		String dbPath = AWAI.baseFP + "\\Database\\words\\";
+		ImageUtility.storeImage(img, dbPath + word);
+	}
+	
+	public Terrain whatIsTerrain(BufferedImage img, int y, int x) throws IOException, InterruptedException
 	{
 		Histogram unk = new Histogram(img);
 		String t;
@@ -41,23 +64,23 @@ public class ImageClassifier
 		}
 		//System.out.println("Unknown tile found");
 		inspects = emulator.inspect(y, x);
-		t = correctTerrainOCR(tess.doOCR(inspects[0]));
+		t = imageWordMatch(inspects[0], y, x);
+		t = t.substring(0, t.indexOf("_"));
 		System.out.println("Discovered |" + t + "|");
-		HistTerrainPair temp = new HistTerrainPair(unk, new Terrain(Terrain.Type.valueOf(t)));
+		HistTerrainPair temp;
+		try {
+			temp = new HistTerrainPair(unk, new Terrain(Terrain.Type.valueOf(t)));
+		}
+		catch (IllegalArgumentException e)
+		{
+			temp = new HistTerrainPair(unk, new Terrain(Terrain.Type.UNKNOWN));
+		}
 		terrainHists.add(temp);
-		updateDatabase(temp);
+		updateTerrainDatabase(temp);
 		return temp.t;
 	}
 	
-	private String correctTerrainOCR(String text)
-	{
-		String ret = text.toUpperCase().trim();
-		if (ret.equals("BA $¢")) ret = "BASE";
-		else if (ret.equals("HO") || ret.equals("HA")) ret = "HQ";
-		return ret;
-	}
-	
-	public void updateDatabase(HistTerrainPair pair) throws IOException
+	public void updateTerrainDatabase(HistTerrainPair pair) throws IOException
 	{
 		String dbPath = AWAI.baseFP + "\\Database\\terrain.db";
 		BufferedWriter writer = new BufferedWriter(new FileWriter(dbPath, true));
@@ -65,7 +88,7 @@ public class ImageClassifier
 		writer.close();
 	}
 	
-	private void loadDatabase()
+	private void loadTerrainDatabase()
 	{
 		BufferedReader reader;
 		String dbPath = AWAI.baseFP + "\\Database\\terrain.db";
@@ -77,9 +100,7 @@ public class ImageClassifier
 			while (line != null) {
 				i = line.indexOf(':');
 				his = line.substring(0, i);
-				line = line.substring(i+1);
-				i = line.indexOf(':');
-				ter = line.substring(0, i);
+				ter = line.substring(i+1);
 				terrainHists.add(new HistTerrainPair(
 						new Histogram(his),
 						new Terrain(Terrain.Type.valueOf(ter))));
@@ -88,7 +109,7 @@ public class ImageClassifier
 			}
 			reader.close();
 		} catch (IOException e) {
-			System.out.println("Img DB did not load properly");
+			System.out.println("Terrain DB did not load properly");
 		}
 		System.out.println("Read " + terrainHists.size() + " records from DB");
 	}

@@ -271,6 +271,7 @@ public class EmulatorFrame
 	{
 		Thread.sleep(100); // Needed in case tile info is switching sides
 		BufferedImage[] subimgs = new BufferedImage[2];
+		BufferedImage temp;
 		int x, y, w, h;
 		y = screenshotScreen.y + (screenshotScreen.height * 6) / AWAI.tileHeight;
 		w = (screenshotScreen.width * 2) / AWAI.tileWidth;
@@ -280,12 +281,13 @@ public class EmulatorFrame
 		Rectangle rec = new Rectangle(x, y, w, h);
 		BufferedImage img = robot.createScreenCapture(rec);
 		ImageIO.write(img, "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraininspectwhole" + d + ".jpg"));
-		subimgs[0] = img.getSubimage(0, img.getHeight()/8, img.getWidth(), img.getHeight()*3/16);
-		//ImageIO.write(subimgs[0], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraininspectraw" + d + ".jpg"));
-		subimgs[0] = wash(subimgs[0], 150);
-		subimgs[1] = img.getSubimage(0, img.getHeight()*23/32, img.getWidth(), img.getHeight()*2/16);
-		ImageIO.write(subimgs[1], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraincapinspectraw" + d + ".jpg"));
-		subimgs[1] = wash(subimgs[1], 150);
+		temp = img.getSubimage(0, img.getHeight()/8, img.getWidth(), img.getHeight()*3/16);
+		ImageIO.write(temp, "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraininspectraw" + d + ".jpg"));
+		subimgs[0] = ImageUtility.wash(temp, 150);
+		ImageIO.write(subimgs[0], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraininspectwash" + d + ".jpg"));
+		temp = img.getSubimage(0, img.getHeight()*23/32, img.getWidth(), img.getHeight()*2/16);
+		ImageIO.write(temp, "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraincapinspectraw" + d + ".jpg"));
+		subimgs[1] = ImageUtility.wash(temp, 150);
 		ImageIO.write(subimgs[1], "jpg", new File(AWAI.baseFP + "\\Screenshots\\terraincapinspectwash" + d + ".jpg"));
 		d++;
 		return subimgs;
@@ -311,22 +313,4 @@ public class EmulatorFrame
 		subimgs[5] = img.getSubimage(img.getWidth()/2, img.getHeight()*5/6, img.getWidth()/2, img.getHeight()/6);
 		return subimgs;
 	}*/
-	
-	private BufferedImage wash(BufferedImage dirty, int tolerance)
-	{
-		BufferedImage clean =  new BufferedImage(dirty.getWidth(), dirty.getHeight(), dirty.getType());
-		Color temp;
-		for (int i = 0; i < dirty.getWidth(); i++)
-		{
-			for (int j = 0; j < dirty.getHeight(); j++)
-			{
-				temp = new Color(dirty.getRGB(i, j));
-				if (temp.getRed() > tolerance & temp.getGreen() > tolerance & temp.getBlue() > tolerance)
-					clean.setRGB(i, j, Color.black.getRGB());
-				else
-					clean.setRGB(i, j, Color.white.getRGB());
-			}
-		}
-		return clean;
-	}
 }

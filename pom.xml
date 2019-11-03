@@ -4,13 +4,6 @@
   <artifactId>AlexanderAWAI2019</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <!-- https://mvnrepository.com/artifact/net.sourceforge.tess4j/tess4j -->
-  	<dependencies>
-		<dependency>
-    		<groupId>net.sourceforge.tess4j</groupId>
-    		<artifactId>tess4j</artifactId>
-    		<version>4.4.1</version>
-		</dependency>
-	</dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>

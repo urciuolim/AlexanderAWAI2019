@@ -5,7 +5,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import net.sourceforge.tess4j.TesseractException;
 
 public class AWAI {
 
@@ -13,7 +12,7 @@ public class AWAI {
 	final static int tileHeight = 10;
 	static String baseFP = "";
 	
-	public static void main(String[] args) throws IOException, AWTException, InterruptedException, TesseractException 
+	public static void main(String[] args) throws IOException, AWTException, InterruptedException 
 	{
 		baseFP = new File( "." ).getCanonicalPath();
 		String emFP = baseFP + "\\VisualBoyAdvance\\VBA.exe";

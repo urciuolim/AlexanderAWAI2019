@@ -5,7 +5,7 @@ public class Terrain
 
 	public static enum Type
 	{
-		SEA, PLAIN, WOOD, ROAD, BRDG, BASE, HQ, MT, CITY;
+		SEA, PLAIN, WOOD, ROAD, BRDG, BASE, HQ, MT, CITY, UNKNOWN;
 	}
 	int def;
 	Type ter;
